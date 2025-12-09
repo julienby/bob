@@ -70,8 +70,21 @@ install_dependencies() {
                 mosquitto \
                 mosquitto-clients
             ;;
-        centos|rhel|fedora)
+        centos|rhel)
             yum install -y \
+                python3 \
+                python3-pip \
+                git \
+                curl \
+                gcc \
+                openssl-devel \
+                libffi-devel \
+                python3-devel \
+                mosquitto \
+                mosquitto-clients
+            ;;
+        fedora)
+            dnf install -y \
                 python3 \
                 python3-pip \
                 git \
@@ -102,6 +115,12 @@ create_user() {
 
 create_directories() {
     print_info "Création des répertoires..."
+    
+    # Verify user exists before creating directories
+    if ! id "$BOB_USER" &>/dev/null; then
+        print_error "L'utilisateur $BOB_USER n'existe pas. Création du user requise d'abord."
+        exit 1
+    fi
     
     mkdir -p "$BOB_HOME"
     mkdir -p "$BOB_DATA_DIR"
@@ -360,4 +379,4 @@ main() {
 }
 
 # Run installation
-main
+main "$@"

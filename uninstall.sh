@@ -128,6 +128,8 @@ remove_directories() {
 remove_user() {
     if id "$BOB_USER" &>/dev/null; then
         print_info "Suppression de l'utilisateur $BOB_USER..."
+        # Note: Not using -r flag to preserve user home directory if it contains important data
+        # Home directory was already cleaned in remove_directories if it's in BOB_HOME
         userdel "$BOB_USER" 2>/dev/null || true
         print_info "Utilisateur supprimé"
     else

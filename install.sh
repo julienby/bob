@@ -71,7 +71,13 @@ install_dependencies() {
                 mosquitto-clients
             ;;
         centos|rhel)
-            yum install -y \
+            # Use dnf if available (CentOS/RHEL 8+), otherwise yum
+            if command -v dnf &> /dev/null; then
+                PKG_MANAGER="dnf"
+            else
+                PKG_MANAGER="yum"
+            fi
+            $PKG_MANAGER install -y \
                 python3 \
                 python3-pip \
                 git \
@@ -259,7 +265,12 @@ class BiosensorCapture:
         broker = self.config.get('mqtt', 'broker', fallback='localhost')
         port = self.config.getint('mqtt', 'port', fallback=1883)
         
-        self.mqtt_client = mqtt.Client()
+        # Use CallbackAPIVersion for compatibility with paho-mqtt 2.x
+        try:
+            self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+        except AttributeError:
+            # Fallback for paho-mqtt 1.x
+            self.mqtt_client = mqtt.Client()
         
         try:
             self.mqtt_client.connect(broker, port)
